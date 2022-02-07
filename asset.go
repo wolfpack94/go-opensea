@@ -44,3 +44,19 @@ type AssetContract struct {
 	SellerFeeBasisPoints        int64       `json:"seller_fee_basis_points"`
 	PayoutAddress               Address     `json:"payout_address"`
 }
+
+func (o Opensea) GetListOfAssetsByAddress(address string) ([]*Asset, error) {
+	ctx = context.TODO();
+	return o.GetListOfAssetsByAddressWithContext(ctx, address)
+}
+
+func (o Opensea) GetListOfAssetsByAddressWithContext(ctx context.Context, address string) (assets []*Asset, error) {
+	path := "/api/v1/assets?order_direction=desc&owner=" + address
+	b, err := o.getPath(ctx, path);
+	if err != nil {
+		return nil, err;
+	}
+	assets = new([]Asset)
+	err = json.Unmarshal(b, assets)
+	return
+}
