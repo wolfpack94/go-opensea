@@ -3,7 +3,6 @@ package opensea
 import (
 	"context"
 	"encoding/json"
-	"log"
 )
 
 type AssetWithout struct {
@@ -88,7 +87,7 @@ func (o Opensea) GetListOfAssetsByAddressWithContext(ctx context.Context, addres
 	}{}
 	err = json.Unmarshal(b, out)
 	if err != nil {
-		log.Fatal(err);
+		return nil, err;
 	}
-	return out.Assets, err
+	return out.Assets, nil;
 }
