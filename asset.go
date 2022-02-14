@@ -3,6 +3,8 @@ package opensea
 import (
 	"context"
 	"encoding/json"
+	"net/url"
+	"fmt"
 )
 
 type AssetWithout struct {
@@ -75,19 +77,40 @@ func (o Opensea) GetListOfAssetsByAddress(address string) ([]*AssetWithout, erro
 	return o.GetListOfAssetsByAddressWithContext(ctx, address)
 }
 
-func (o Opensea) GetListOfAssetsByAddressWithContext(ctx context.Context, address string) ([]*AssetWithout, error) {
-	// assets := []*Asset{}
-	path := "/api/v1/assets?order_direction=desc&owner=" + address
-	b, err := o.getPath(ctx, path);
-	if err != nil {
-		return nil, err;
+func (o Opensea) GetListOfAssetsByAddressWithContext(ctx context.Context, address string) (assets []*AssetWithout, err error) {
+	offset := 0
+	limit := 100
+
+	q := url.Values{}
+
+	q.Set("owner", address)
+	q.set("limit", fmt.Sprintf("%d", limit))
+	
+	assets := []*Asset{}
+
+	for true {
+		q.Set("offet", fmt.Sprintf("%d", offset))
+
+		path := "/api/v1/assets?" + q.Encode()
+		b, err := o.getPath(ctx, path);
+		if err != nil {
+			return nil, err;
+		}
+		out := &struct {
+			Assets	[]*AssetWithout `json:"assets"`
+		}{}
+		err = json.Unmarshal(b, out)
+		if err != nil {
+			return nil, err;
+		}
+		assets = append(assets, out.Assets...)
+
+		if len(out.Assets) < limit {
+			break
+		}
+
+		offset += limit
 	}
-	out := &struct {
-		Assets	[]*AssetWithout `json:"assets"`
-	}{}
-	err = json.Unmarshal(b, out)
-	if err != nil {
-		return nil, err;
-	}
-	return out.Assets, nil;
+
+	return
 }
