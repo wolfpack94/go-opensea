@@ -84,9 +84,9 @@ func (o Opensea) GetListOfAssetsByAddressWithContext(ctx context.Context, addres
 	q := url.Values{}
 
 	q.Set("owner", address)
-	q.set("limit", fmt.Sprintf("%d", limit))
+	q.Set("limit", fmt.Sprintf("%d", limit))
 	
-	assets := []*Asset{}
+	assets := []*AssetWithout{}
 
 	for true {
 		q.Set("offet", fmt.Sprintf("%d", offset))
